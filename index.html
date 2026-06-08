@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Giancarlo Pelaez Agamez</title>
+<meta name="description" content="Giancarlo Pelaez Agamez — Development economist studying migration, remittances, and financial inclusion. MSc Development Economics, Université Paris 1 Panthéon-Sorbonne." />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --line: #e6e6e6;
+    --accent: #7a1f1f;
+    --bg: #fcfcfa;
+    --max: 720px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---- Animated canvas backdrop ---- */
+  #canvas-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+  #canvas-container canvas { display: block; }
+
+  /* ---- Header / hero ---- */
+  header {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 1.5rem 2rem;
+  }
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  main, footer { position: relative; z-index: 1; background: var(--bg); }
+  header h1 {
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+  }
+  header .tagline {
+    font-size: 1.1rem;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0 0 1.6rem;
+    max-width: 32rem;
+  }
+  /* ---- Fixed top-center nav ---- */
+  .topnav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 1.8rem;
+    flex-wrap: wrap;
+    padding: 1.05rem 1rem;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    background: rgba(252, 252, 250, 0.72);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topnav a { color: var(--muted); text-decoration: none; }
+  .topnav a:hover { color: var(--accent); }
+
+  /* ---- Social / CV links (icons, no boxes) ---- */
+  .links {
+    display: flex;
+    gap: 1.6rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.6rem;
+  }
+  .links a {
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    transition: color 0.2s ease;
+  }
+  .links a:hover { color: var(--accent); text-decoration: none; }
+  .links svg { width: 22px; height: 22px; fill: currentColor; display: block; }
+
+  .scroll-cue {
+    margin-top: 3rem;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+  /* ---- Sections ---- */
+  main { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 3.5rem 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; }
+  h2 {
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin: 0 0 1.6rem;
+  }
+  p { margin: 0 0 1.1rem; }
+
+  .item { margin-bottom: 1.8rem; }
+  .item:last-child { margin-bottom: 0; }
+  .item .role { font-weight: 700; }
+  .item .meta {
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin: 0.1rem 0 0.5rem;
+  }
+  .item ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+  .item li { margin-bottom: 0.4rem; font-size: 0.95rem; line-height: 1.55; }
+
+  .skills-grid { display: grid; gap: 0.9rem; }
+  .skills-grid .label {
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .skills-grid .row { padding-bottom: 0.9rem; border-bottom: 1px dotted var(--line); }
+  .skills-grid .row:last-child { border-bottom: none; }
+
+  footer {
+    text-align: center;
+    padding: 3rem 1.5rem 4rem;
+    border-top: 1px solid var(--line);
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  footer a { margin: 0 0.6rem; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="#about">About</a>
+  <a href="#research">Research</a>
+  <a href="#experience">Experience</a>
+  <a href="#education">Education</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<div id="canvas-container"></div>
+
+<header>
+  <div class="hero-content">
+    <h1>Giancarlo Pelaez Agamez</h1>
+    <p class="tagline">Development economist and political scientist studying migration.</p>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/giancarlo-pelaez/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+      </a>
+      <a href="Giancarlo-Pelaez-CV.pdf" download aria-label="Download CV">CV</a>
+      <a href="https://github.com/GiancarloPelaez" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.21 3.44 9.63 8.2 11.19.6.11.82-.25.82-.56 0-.28-.01-1.02-.02-2-3.34.71-4.04-1.58-4.04-1.58-.55-1.37-1.34-1.74-1.34-1.74-1.09-.73.08-.72.08-.72 1.2.08 1.84 1.21 1.84 1.21 1.07 1.79 2.81 1.27 3.5.97.11-.76.42-1.27.76-1.56-2.67-.3-5.47-1.31-5.47-5.83 0-1.29.47-2.34 1.24-3.17-.13-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.21.96-.26 1.98-.39 3-.4 1.02.01 2.04.14 3 .4 2.28-1.53 3.29-1.21 3.29-1.21.66 1.64.25 2.86.12 3.16.77.83 1.24 1.88 1.24 3.17 0 4.53-2.81 5.53-5.49 5.82.43.36.81 1.08.81 2.18 0 1.58-.01 2.85-.01 3.24 0 .31.21.68.83.56A12.02 12.02 0 0 0 24 12.29C24 5.78 18.63.5 12 .5z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="scroll-cue" onclick="scrollToContent()" style="cursor:pointer;pointer-events:auto;">Scroll &#8595;</div>
+</header>
+
+<main>
+
+  <section id="about">
+    <h2>About</h2>
+    <p>I am a Master of Science candidate in Development Economics at Université Paris 1 Panthéon-Sorbonne, with prior degrees in Economics and Political Science from Pontificia Universidad Javeriana in Bogotá.</p>
+    <p>My work sits at the intersection of applied microeconometrics and development policy. I am currently researching the causal impact of remittances on financial development in Colombia, using longitudinal household data and a shift-share instrumental-variables strategy. Earlier, I conducted qualitative fieldwork on indigenous governance and rural political economy in post-conflict Colombia.</p>
+    <p>Alongside research, I bring several years of industry experience in data analytics and operations at NielsenIQ and Schlumberger.</p>
+  </section>
+
+  <section id="research">
+    <h2>Research</h2>
+    <div class="item">
+      <div class="role">Remittances and Financial Development in Colombia</div>
+      <div class="meta">Master's thesis · Université Paris 1 Panthéon-Sorbonne · 2025–present</div>
+      <ul>
+        <li>Estimating the causal effect of remittances on financial inclusion using large longitudinal household data.</li>
+        <li>Identification via heterogeneous-effects 2SLS with a shift-share (Bartik) instrument strategy.</li>
+        <li>Aims to generate policy-relevant findings on financial access in a developing-economy setting.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="role">Indigenous Governance &amp; Rural Political Economy</div>
+      <div class="meta">Undergraduate research · Pontificia Universidad Javeriana · 2022–2023</div>
+      <ul>
+        <li>Qualitative study of crop-substitution policy and labor-market integration of the Misak community.</li>
+        <li>Synthesized field interviews, peace-studies literature, and socio-economic data into structured policy evaluation.</li>
+        <li>Awarded Academic Distinction for research in Peace Studies, Transitional Justice, and Post-conflict.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="experience">
+    <h2>Professional Experience</h2>
+    <div class="item">
+      <div class="role">Retail &amp; Operations Analyst — Market Research</div>
+      <div class="meta">NielsenIQ · Bogotá, Colombia · Jun 2024 – Sep 2025</div>
+      <ul>
+        <li>Managed a portfolio of international client accounts on the API-enabled NielsenIQ "Discover" platform, coordinating delivery of high-frequency global datasets.</li>
+        <li>Owned client performance reporting — tracking acquisition and growth metrics to inform strategic recommendations.</li>
+        <li>Led technical client communications and tailored newsletters to strengthen long-term engagement.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="role">Expediting Specialist — Procurement &amp; Logistics</div>
+      <div class="meta">Schlumberger · Bogotá, Colombia · Mar 2022 – Mar 2024</div>
+      <ul>
+        <li>Managed end-to-end relationships with global supplier accounts, including financial reconciliations and issue resolution.</li>
+        <li>Analyzed account-level logistics demand with SAP and Excel to identify optimization opportunities.</li>
+        <li>Architected automated purchase-order tracking in Python, Excel Query, and SAP, reducing response times.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="role">Operations Intern — Database Administrator</div>
+      <div class="meta">Schlumberger · Bogotá, Colombia · Jun 2021 – Jan 2022</div>
+      <ul>
+        <li>Maintained a large supplier-catalogue database, ensuring data integrity for the Global Business Services team.</li>
+        <li>Validated dashboard data and assembled performance reports for senior stakeholders.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="education">
+    <h2>Education</h2>
+    <div class="item">
+      <div class="role">MSc, Development Economics</div>
+      <div class="meta">Université Paris 1 Panthéon-Sorbonne · Expected Jun 2026</div>
+      <p style="font-size:0.95rem;color:var(--muted);margin:0;">Coursework: Microeconomics, Human Capital, Institutions &amp; Governance, Econometrics &amp; Impact Evaluation.</p>
+    </div>
+    <div class="item">
+      <div class="role">BSc, Political Science</div>
+      <div class="meta">Pontificia Universidad Javeriana · Bogotá · 2023 · Academic Distinction</div>
+    </div>
+    <div class="item">
+      <div class="role">BSc, Economics</div>
+      <div class="meta">Pontificia Universidad Javeriana · Bogotá · 2022</div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2>Skills</h2>
+    <div class="skills-grid">
+      <div class="row"><span class="label">Technical</span><br>Stata (advanced), R, Python, Excel</div>
+      <div class="row"><span class="label">Tools</span><br>Power BI, LaTeX, Microsoft 365 (incl. Power Automate), Generative AI / AI agents</div>
+      <div class="row"><span class="label">Languages</span><br>Spanish (native), English (C1), French (C1)</div>
+      <div class="row"><span class="label">Certificates</span><br>DataCamp — Associate Data Scientist in Python</div>
+    </div>
+  </section>
+
+  <section id="leadership">
+    <h2>Leadership &amp; Service</h2>
+    <div class="item">
+      <div class="role">Bénévole — Peace Brigades International (PBI) France</div>
+      <div class="meta">Paris · 2026 – present</div>
+      <ul>
+        <li>Designing a multi-month awareness project on human-rights defenders in PBI's field programmes (Colombia, Honduras, Mexico).</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="role">Volunteer — Comisión de la Verdad (Truth Commission), Generación V+</div>
+      <div class="meta">Bogotá · 2020</div>
+      <ul>
+        <li>Facilitated public workshops on peace-building and transitional justice, translating research findings for non-specialist audiences.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <p>Paris, France</p>
+  <p>
+    <a href="mailto:Giancarlo.Pelaez-Agamez@etu.univ-paris1.fr">Email</a>
+    <a href="https://www.linkedin.com/in/giancarlo-pelaez/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/GiancarloPelaez" target="_blank" rel="noopener">GitHub</a>
+    <a href="Giancarlo-Pelaez-CV.pdf" download>CV</a>
+  </p>
+  <p style="margin-top:1.4rem;font-size:0.78rem;">© 2026 Giancarlo Pelaez Agamez</p>
+</footer>
+
+<script>
+  // Smooth scroll from hero to the About section
+  function scrollToContent() {
+    const target = document.getElementById('about');
+    if (!target) return;
+    const startY = window.pageYOffset;
+    const endY = target.getBoundingClientRect().top + startY - 20;
+    const duration = 900;
+    let startTime = null;
+    const easeInOutCubic = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+    function step(now) {
+      if (startTime === null) startTime = now;
+      const p = Math.min((now - startTime) / duration, 1);
+      window.scrollTo(0, startY + (endY - startY) * easeInOutCubic(p));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ---- p5.js migration-arcs globe ----
+  let R, cx, cy, rotY = 0, tilt = -0.32;
+  let globePts = [], flows = [];
+  let ocean = {r:70,g:100,b:135}, warm = [{r:198,g:120,b:60},{r:170,g:70,b:60},{r:210,g:165,b:90}];
+
+  function setup(){
+    let c = createCanvas(windowWidth, windowHeight); c.parent('canvas-container');
+    textFont('monospace'); textAlign(CENTER, CENTER); textStyle(BOLD);
+    layout();
+    for (let lat=-78; lat<=78; lat+=16)
+      for (let lon=0; lon<360; lon+=10){
+        let la=radians(lat), lo=radians(lon);
+        globePts.push({ x:cos(la)*cos(lo), y:sin(la), z:cos(la)*sin(lo) });
+      }
+    for (let i=0;i<16;i++) flows.push(newFlow());
+  }
+  function layout(){ R=min(width,height)*0.30; cx=width/2; cy=height*0.5; }
+
+  function randUnit(){ let u=random(-1,1), th=random(TWO_PI), s=sqrt(1-u*u);
+    return {x:s*cos(th), y:u, z:s*sin(th)}; }
+  function newFlow(){
+    let A=randUnit(), B=randUnit();
+    return { A, B, t:0, speed:random(0.0025,0.006), col:random(warm) };
+  }
+  function project(p){
+    let x=p.x, y=p.y, z=p.z;
+    let x1=x*cos(rotY)+z*sin(rotY), z1=-x*sin(rotY)+z*cos(rotY), y1=y;
+    let y2=y1*cos(tilt)-z1*sin(tilt), z2=y1*sin(tilt)+z1*cos(tilt), x2=x1;
+    return { sx:cx+x2*R, sy:cy+y2*R, z:z2 };
+  }
+  function arcPoint(A,B,t){
+    let dot=constrain(A.x*B.x+A.y*B.y+A.z*B.z,-1,1), om=acos(dot), s=sin(om);
+    let a,b;
+    if (s<0.001){ a=1-t; b=t; } else { a=sin((1-t)*om)/s; b=sin(t*om)/s; }
+    let dx=a*A.x+b*B.x, dy=a*A.y+b*B.y, dz=a*A.z+b*B.z;
+    let len=sqrt(dx*dx+dy*dy+dz*dz);
+    let rr=1+0.22*sin(PI*t);
+    return { x:dx/len*rr, y:dy/len*rr, z:dz/len*rr };
+  }
+
+  function draw(){
+    clear(); rotY += 0.0016;
+
+    // globe lattice
+    for (let p of globePts){
+      let pr=project(p);
+      let front=map(pr.z,-1,1,0,1);
+      noStroke(); fill(ocean.r,ocean.g,ocean.b,map(front,0,1,18,150));
+      textSize(map(front,0,1,9,13));
+      text(front>0.55?':':'.', pr.sx, pr.sy);
+    }
+
+    // migration flows
+    for (let f of flows){
+      let trail=16;
+      for (let k=trail;k>=0;k--){
+        let tt=f.t-k*0.018; if (tt<0||tt>1) continue;
+        let pr=project(arcPoint(f.A,f.B,tt));
+        let front=map(pr.z,-1,1,0.25,1);
+        let fade=map(k,0,trail,1,0);
+        let a=220*fade*front; if (a<6) continue;
+        noStroke(); fill(f.col.r,f.col.g,f.col.b,a);
+        textSize(k===0?16:map(k,0,trail,13,8));
+        text(k===0?'*':'·', pr.sx, pr.sy);
+      }
+      f.t+=f.speed; if (f.t>1.05) Object.assign(f,newFlow());
+    }
+  }
+  function windowResized(){ resizeCanvas(windowWidth,windowHeight); layout(); }
+</script>
+
+</body>
+</html>
