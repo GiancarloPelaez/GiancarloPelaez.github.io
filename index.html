@@ -5,6 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Giancarlo Pelaez Agamez</title>
 <meta name="description" content="Giancarlo Pelaez Agamez — Development economist studying migration, remittances, and financial inclusion. MSc Development Economics, Université Paris 1 Panthéon-Sorbonne." />
+<link rel="canonical" href="https://giancarlopelaez.github.io/" />
+<meta name="author" content="Giancarlo Pelaez Agamez" />
+<meta name="theme-color" content="#7a1f1f" />
+
+<!-- Open Graph (LinkedIn, Facebook, Slack, etc.) -->
+<meta property="og:type" content="profile" />
+<meta property="og:title" content="Giancarlo Pelaez Agamez — Development Economist" />
+<meta property="og:description" content="Development economist studying migration, remittances, and financial inclusion. MSc Development Economics, Université Paris 1 Panthéon-Sorbonne." />
+<meta property="og:url" content="https://giancarlopelaez.github.io/" />
+<meta property="og:image" content="https://giancarlopelaez.github.io/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Giancarlo Pelaez Agamez — Development Economist" />
+<meta name="twitter:description" content="Development economist studying migration, remittances, and financial inclusion." />
+<meta name="twitter:image" content="https://giancarlopelaez.github.io/og-image.png" />
+
+<!-- Favicon (inline SVG — no extra file needed) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%237a1f1f'>G</text></svg>" />
+
+<!-- Structured data for search engines -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Giancarlo Pelaez Agamez",
+  "url": "https://giancarlopelaez.github.io/",
+  "jobTitle": "Development Economist",
+  "email": "Giancarlo.Pelaez-Agamez@etu.univ-paris1.fr",
+  "alumniOf": [
+    { "@type": "CollegeOrUniversity", "name": "Université Paris 1 Panthéon-Sorbonne" },
+    { "@type": "CollegeOrUniversity", "name": "Pontificia Universidad Javeriana" }
+  ],
+  "knowsAbout": ["Development Economics", "Migration", "Remittances", "Financial Inclusion", "Microeconometrics"],
+  "sameAs": [
+    "https://www.linkedin.com/in/giancarlo-pelaez/",
+    "https://github.com/GiancarloPelaez"
+  ]
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 <style>
   :root {
@@ -123,8 +166,18 @@
     text-transform: uppercase;
     color: var(--muted);
     animation: bob 2s ease-in-out infinite;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
   }
+  .scroll-cue:hover { color: var(--accent); }
+  .scroll-cue:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .scroll-cue { animation: none; }
+  }
 
   /* ---- Sections ---- */
   main { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; }
@@ -186,7 +239,7 @@
   <a href="#contact">Contact</a>
 </nav>
 
-<div id="canvas-container"></div>
+<div id="canvas-container" aria-hidden="true"></div>
 
 <header>
   <div class="hero-content">
@@ -202,7 +255,7 @@
       </a>
     </div>
   </div>
-  <div class="scroll-cue" onclick="scrollToContent()" style="cursor:pointer;pointer-events:auto;">Scroll &#8595;</div>
+  <button type="button" class="scroll-cue" onclick="scrollToContent()" style="pointer-events:auto;" aria-label="Scroll to content">Scroll &#8595;</button>
 </header>
 
 <main>
@@ -372,6 +425,20 @@
         globePts.push({ x:cos(la)*cos(lo), y:sin(la), z:cos(la)*sin(lo) });
       }
     for (let i=0;i<16;i++) flows.push(newFlow());
+
+    // Respect reduced-motion: draw one static frame, then stop animating
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      redraw();
+      noLoop();
+      return;
+    }
+
+    // Pause the draw loop when the hero scrolls out of view (saves battery/CPU)
+    const header = document.querySelector('header');
+    if ('IntersectionObserver' in window && header) {
+      new IntersectionObserver(([e]) => e.isIntersecting ? loop() : noLoop())
+        .observe(header);
+    }
   }
   function layout(){ R=min(width,height)*0.30; cx=width/2; cy=height*0.5; }
 
